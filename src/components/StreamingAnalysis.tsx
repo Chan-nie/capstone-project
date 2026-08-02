@@ -9,6 +9,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useStreamingAnalysis } from "@/hooks/useStreamingAnalysis";
 import styles from "./StreamingAnalysis.module.css";
+import ToolCallCard from "./ToolCallCard";
 
 export default function StreamingAnalysis() {
   const { messages, status, send, stop } = useStreamingAnalysis();
@@ -69,12 +70,13 @@ export default function StreamingAnalysis() {
           const showThinking = isLastAssistant && status === "thinking" && m.content === "";
 
           return (
-            <div
+<div
               key={m.id}
               className={`${styles.message} ${
                 m.role === "user" ? styles.messageUser : styles.messageAssistant
               }`}
             >
+              {m.toolCall && <ToolCallCard toolCall={m.toolCall} />}
               <div className={styles.bubble}>
                 {showThinking ? (
                   <ThinkingIndicator />

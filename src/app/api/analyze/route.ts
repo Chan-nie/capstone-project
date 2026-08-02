@@ -2,25 +2,12 @@
  * route.ts
  * --------
  * POST /api/analyze
- *
- * Body: { input: string, history?: Array<{role: "user"|"assistant", content: string}> }
- *
- * Streams Gemini's response back to the client as Server-Sent Events (SSE),
- * using a plain Next.js Route Handler (App Router) — no Express needed,
- * Next.js's Web-standard Request/Response already gives us everything.
- *
- * Eval criteria this file is responsible for:
- *  - Responses visibly stream token by token  -> ReadableStream + `for await (chunk of genStream)`
- *  - Generation can be stopped mid-stream      -> req.signal 'abort' -> abortController.abort()
- *  - API key lives server-side only            -> GEMINI_API_KEY read here via process.env, never sent to client
  */
 
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, Type } from "@google/genai";
 import { MODEL, MAX_TOKENS, SYSTEM_PROMPT } from "@/lib/aiConfig";
+import { getPageMetadata, getPageMetadataDeclaration } from "@/lib/tools/getPageMetadata";
 
-// Reads GEMINI_API_KEY from process.env. This file only ever runs on the
-// server (Route Handlers never ship to the browser) — the client never
-// sees this object or the key.
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
@@ -37,7 +24,6 @@ export async function POST(req: Request) {
     });
   }
 
-  // Gemini's format: 'user' | 'model' roles (not 'assistant') — translate.
   const contents = [
     ...history.map((m) => ({
       role: m.role === "assistant" ? "model" : "user",
@@ -47,12 +33,6 @@ export async function POST(req: Request) {
   ];
 
   const encoder = new TextEncoder();
-
-  // --- Stop button support ---
-  // Next.js's Request exposes a standard AbortSignal (req.signal) that
-  // fires when the client cancels its fetch(). We forward that into our
-  // own controller and pass it to Gemini's request config, so the upstream
-  // generation actually stops instead of continuing to burn tokens nobody sees.
   const abortController = new AbortController();
   req.signal.addEventListener("abort", () => abortController.abort());
 
@@ -65,20 +45,82 @@ export async function POST(req: Request) {
       };
 
       try {
-        const genStream = await ai.models.generateContentStream({
-          model: MODEL,
-          contents,
-          config: {
-            systemInstruction: SYSTEM_PROMPT,
-            maxOutputTokens: MAX_TOKENS,
-            abortSignal: abortController.signal,
-          },
-        });
+        let currentContents = [...contents];
+        let done = false;
 
-        for await (const chunk of genStream) {
+        while (!done) {
+          const genStream = await ai.models.generateContentStream({
+            model: MODEL,
+            contents: currentContents,
+            config: {
+              systemInstruction: SYSTEM_PROMPT,
+              maxOutputTokens: MAX_TOKENS,
+              abortSignal: abortController.signal,
+              tools: [{ functionDeclarations: [getPageMetadataDeclaration] }],
+            },
+          });
+
+          let pendingCall: { name: string; args: Record<string, unknown> } | null = null;
+          let exactCallPart: any = null; // THIS IS THE NEW FIX
+          let announced = false;
+
+          for await (const chunk of genStream) {
+            if (abortController.signal.aborted) break;
+
+            // We MUST grab the raw part directly from candidates to keep thought_signature
+            if (!exactCallPart && chunk.candidates?.[0]?.content?.parts) {
+              const found = chunk.candidates[0].content.parts.find((p: any) => p.functionCall);
+              if (found) exactCallPart = found;
+            }
+
+            const calls = chunk.functionCalls;
+            if (calls && calls.length > 0) {
+              const call = calls[0];
+              pendingCall = { name: call.name!, args: call.args ?? {} };
+
+              if (!announced) {
+                send("tool-input-streaming", { toolName: call.name });
+                announced = true;
+              }
+              send("tool-input-available", { toolName: call.name, input: pendingCall.args });
+              continue;
+            }
+
+            const text = chunk.text;
+            if (text) send("token", { text });
+          }
+
           if (abortController.signal.aborted) break;
-          const text = chunk.text;
-          if (text) send("token", { text });
+
+          if (pendingCall?.name === "getPageMetadata") {
+            try {
+              const result = await getPageMetadata(pendingCall.args as any);
+              send("tool-output-available", { toolName: pendingCall.name, output: result });
+
+              const callId = exactCallPart?.functionCall?.id;
+              const responsePart: any = { 
+                functionResponse: { name: pendingCall.name, response: result } 
+              };
+              if (callId) {
+                responsePart.functionResponse.id = callId;
+              }
+
+              // Feed back the exact raw part
+              currentContents = [
+                ...currentContents,
+                { role: "model", parts: [exactCallPart || { functionCall: { name: pendingCall.name, args: pendingCall.args } }] },
+                { role: "user", parts: [responsePart] },
+              ];
+              continue;
+            } catch (err) {
+              const message = err instanceof Error ? err.message : "Tool execution failed.";
+              send("tool-output-error", { toolName: pendingCall.name, error: message });
+              done = true;
+              break;
+            }
+          }
+
+          done = true;
         }
 
         if (!abortController.signal.aborted) send("done", {});
@@ -96,7 +138,6 @@ export async function POST(req: Request) {
       }
     },
     cancel() {
-      // Fires if the ReadableStream itself gets cancelled by the runtime.
       abortController.abort();
     },
   });

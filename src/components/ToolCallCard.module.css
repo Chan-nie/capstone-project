@@ -1,0 +1,65 @@
+.card {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+  font-family: system-ui, sans-serif;
+  /* Mentor tip: 200ms crossfade beats a layout jump */
+  transition: all 0.2s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* State 1: Input Streaming (What is it doing?) */
+.streaming {
+  background-color: #f9fafb;
+  border-color: #e5e7eb;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* State 2: Input Available (With what input?) */
+.running {
+  background-color: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+/* State 3: Output Available (What came back?) */
+.success {
+  background-color: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+/* State 4: Output Error (What went wrong?) */
+.error {
+  background-color: #fef2f2;
+  border-color: #fecaca;
+}
+
+.header {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.headerError {
+  color: #991b1b;
+}
+
+.content {
+  font-size: 0.75rem;
+  color: #4b5563;
+  font-family: ui-monospace, monospace;
+  background: rgba(255, 255, 255, 0.5);
+  padding: 8px;
+  border-radius: 4px;
+  word-break: break-all;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}

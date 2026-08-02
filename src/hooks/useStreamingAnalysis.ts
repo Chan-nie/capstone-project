@@ -19,7 +19,14 @@
 import { useCallback, useRef, useState } from "react";
 
 export type ChatRole = "user" | "assistant";
-export type ChatMessage = { id: string; role: ChatRole; content: string };
+
+export type ToolCallState =
+  | { status: "input-streaming"; toolName: string }
+  | { status: "input-available"; toolName: string; input: { url: string } }
+  | { status: "output-available"; toolName: string; output: Record<string, unknown> }
+  | { status: "output-error"; toolName: string; error: string };
+
+export type ChatMessage = { id: string; role: ChatRole; content: string; toolCall?: ToolCallState };
 export type Status = "idle" | "thinking" | "streaming" | "error";
 
 export function useStreamingAnalysis(endpoint = "/api/analyze") {
@@ -102,10 +109,42 @@ export function useStreamingAnalysis(endpoint = "/api/analyze") {
                   m.id === assistantId ? { ...m, content: m.content + data.text } : m
                 )
               );
-            } else if (event === "error") {
+} else if (event === "error") {
               setStatus("error");
             } else if (event === "done") {
               setStatus("idle");
+            } else if (event === "tool-input-streaming") {
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === assistantId
+                    ? { ...m, toolCall: { status: "input-streaming", toolName: data.toolName } }
+                    : m
+                )
+              );
+            } else if (event === "tool-input-available") {
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === assistantId
+                    ? { ...m, toolCall: { status: "input-available", toolName: data.toolName, input: data.input } }
+                    : m
+                )
+              );
+            } else if (event === "tool-output-available") {
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === assistantId
+                    ? { ...m, toolCall: { status: "output-available", toolName: data.toolName, output: data.output } }
+                    : m
+                )
+              );
+            } else if (event === "tool-output-error") {
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === assistantId
+                    ? { ...m, toolCall: { status: "output-error", toolName: data.toolName, error: data.error } }
+                    : m
+                )
+              );
             }
           }
         }
