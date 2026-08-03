@@ -32,7 +32,14 @@ export type Status = "idle" | "thinking" | "streaming" | "error";
 export function useStreamingAnalysis(endpoint = "/api/analyze") {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [status, setStatus] = useState<Status>("idle");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  // The exact input + message ids of the exchange that's currently in an
+  // error state, so retry() can resend ONLY that turn — not the whole
+  // conversation — and swap it back out cleanly if the retry succeeds.
+  const failedTurnRef = useRef<{ input: string; userId: string; assistantId: string } | null>(
+    null
+  );
 
   const stop = useCallback(() => {
     // Aborting the fetch closes the connection; the server's req.signal
@@ -44,37 +51,62 @@ export function useStreamingAnalysis(endpoint = "/api/analyze") {
   }, []);
 
   const send = useCallback(
-    async (input: string) => {
+    async (input: string, replaceIds?: { userId: string; assistantId: string }) => {
       if (!input.trim() || status === "thinking" || status === "streaming") return;
 
-      const userMessage: ChatMessage = { id: crypto.randomUUID(), role: "user", content: input };
-      const assistantId = crypto.randomUUID();
+      const userId = replaceIds?.userId ?? crypto.randomUUID();
+      const assistantId = replaceIds?.assistantId ?? crypto.randomUUID();
+      const userMessage: ChatMessage = { id: userId, role: "user", content: input };
 
-      setMessages((prev) => [
-        ...prev,
-        userMessage,
-        { id: assistantId, role: "assistant", content: "" },
-      ]);
+      setErrorMessage(null);
+      failedTurnRef.current = null;
+
+      setMessages((prev) => {
+        // Retrying: drop the previous failed pair before re-adding it,
+        // so the conversation doesn't accumulate duplicate turns.
+        const base = replaceIds
+          ? prev.filter((m) => m.id !== replaceIds.userId && m.id !== replaceIds.assistantId)
+          : prev;
+        return [...base, userMessage, { id: assistantId, role: "assistant", content: "" }];
+      });
       setStatus("thinking"); // thinking indicator shows until first token arrives
 
       const controller = new AbortController();
       abortControllerRef.current = controller;
 
+      const fail = (message: string) => {
+        failedTurnRef.current = { input, userId, assistantId };
+        setErrorMessage(message);
+        setStatus("error");
+      };
+
       try {
-        const historyForServer = [...messages, userMessage].map(({ role, content }) => ({
-          role,
-          content,
-        }));
+        const historyForServer = messages
+          .filter((m) => m.id !== userId && m.id !== assistantId)
+          .map(({ role, content }) => ({ role, content }));
 
         const res = await fetch(endpoint, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ input, history: historyForServer.slice(0, -1) }),
+          body: JSON.stringify({ input, history: historyForServer }),
           signal: controller.signal,
         });
 
+        if (res.status === 429) {
+          fail("The AI service is getting a lot of requests right now. Wait a moment and retry.");
+          return;
+        }
+
         if (!res.ok || !res.body) {
-          throw new Error(`Request failed: ${res.status}`);
+          let detail = "";
+          try {
+            const body = await res.json();
+            detail = body?.error ?? "";
+          } catch {
+            // response wasn't JSON — ignore, fall back to generic message
+          }
+          fail(detail || `Request failed (${res.status}). Please retry.`);
+          return;
         }
 
         const reader = res.body.getReader();
@@ -110,7 +142,7 @@ export function useStreamingAnalysis(endpoint = "/api/analyze") {
                 )
               );
 } else if (event === "error") {
-              setStatus("error");
+              fail(data.message || "The analysis stopped unexpectedly. Please retry.");
             } else if (event === "done") {
               setStatus("idle");
             } else if (event === "tool-input-streaming") {
@@ -154,7 +186,10 @@ export function useStreamingAnalysis(endpoint = "/api/analyze") {
           // Expected path from stop() — already handled there.
           return;
         }
-        setStatus("error");
+        // fetch() itself rejects (not just a bad status) when the network
+        // is down or the connection drops mid-flight — that's the
+        // "offline before send" and "killed mid-stream" sabotage cases.
+        fail("Couldn't reach the server. Check your connection and retry.");
       } finally {
         abortControllerRef.current = null;
       }
@@ -162,5 +197,11 @@ export function useStreamingAnalysis(endpoint = "/api/analyze") {
     [endpoint, messages, status]
   );
 
-  return { messages, status, send, stop };
+  const retry = useCallback(() => {
+    const failed = failedTurnRef.current;
+    if (!failed || status === "thinking" || status === "streaming") return;
+    send(failed.input, { userId: failed.userId, assistantId: failed.assistantId });
+  }, [send, status]);
+
+  return { messages, status, errorMessage, send, stop, retry };
 }

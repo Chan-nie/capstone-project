@@ -20,6 +20,21 @@
   text-align: center;
   margin-top: 40px;
   font-size: 0.95rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.exampleBtn {
+  border: 1px solid #ddd;
+  background: white;
+  color: #2563eb;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 999px;
+  cursor: pointer;
 }
 
 .message {
@@ -108,6 +123,40 @@
   color: #b91c1c;
   font-size: 0.85rem;
   text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 8px 12px;
+  background: #fef2f2;
+  border-radius: 10px;
+  animation: fadeIn 0.2s ease;
+}
+
+.retryBtn {
+  border: 1px solid #b91c1c;
+  background: white;
+  color: #b91c1c;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.retryBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .error { animation: none; }
 }
 
 .jumpBtn {

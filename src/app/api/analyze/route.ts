@@ -13,6 +13,38 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 type ChatMessage = { role: "user" | "assistant"; content: string };
 
 export async function POST(req: Request) {
+  // DEV-ONLY sabotage hooks for FE-08 testing. Never active in production —
+  // gated on NODE_ENV so there's no risk of shipping a debug backdoor.
+  // Usage: POST with ?sabotage=429 | malformed-tool | midstream
+  if (process.env.NODE_ENV !== "production") {
+    const sabotage = new URL(req.url).searchParams.get("sabotage");
+    if (sabotage === "429") {
+      return new Response(JSON.stringify({ error: "Rate limited (simulated)." }), {
+        status: 429,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    if (sabotage === "midstream") {
+      const encoder = new TextEncoder();
+      const stream = new ReadableStream({
+        start(controller) {
+          controller.enqueue(
+            encoder.encode(`event: token\ndata: ${JSON.stringify({ text: "Partial analysis before" })}\n\n`)
+          );
+          setTimeout(() => {
+            controller.enqueue(
+              encoder.encode(`event: error\ndata: ${JSON.stringify({ message: "Simulated mid-stream failure." })}\n\n`)
+            );
+            controller.close();
+          }, 600);
+        },
+      });
+      return new Response(stream, {
+        headers: { "Content-Type": "text/event-stream", "Cache-Control": "no-cache, no-transform" },
+      });
+    }
+  }
+
   const body = await req.json().catch(() => null);
   const input: string | undefined = body?.input;
   const history: ChatMessage[] = body?.history ?? [];

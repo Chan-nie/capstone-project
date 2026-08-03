@@ -11,9 +11,13 @@ import { useStreamingAnalysis } from "@/hooks/useStreamingAnalysis";
 import styles from "./StreamingAnalysis.module.css";
 import ToolCallCard from "./ToolCallCard";
 
+const EXAMPLE_PROMPT =
+  "Q3 revenue grew 12% YoY to $4.2M, driven by a 30% jump in enterprise signups, while churn ticked up from 3% to 4.1% in the SMB segment.";
+
 export default function StreamingAnalysis() {
-  const { messages, status, send, stop } = useStreamingAnalysis();
+  const { messages, status, errorMessage, send, stop, retry } = useStreamingAnalysis();
   const [input, setInput] = useState("");
+  const [retrying, setRetrying] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const isPinnedRef = useRef(true); // are we currently glued to the bottom?
   const [showJump, setShowJump] = useState(false);
@@ -61,7 +65,14 @@ export default function StreamingAnalysis() {
       <div className={styles.messages} ref={scrollRef} onScroll={handleScroll}>
         {messages.length === 0 && (
           <div className={styles.empty}>
-            Paste some text or data below and I&apos;ll analyze it for you.
+            <p>Paste some text or data below and I&apos;ll analyze it for you.</p>
+            <button
+              type="button"
+              className={styles.exampleBtn}
+              onClick={() => setInput(EXAMPLE_PROMPT)}
+            >
+              Try an example →
+            </button>
           </div>
         )}
 
@@ -91,7 +102,29 @@ export default function StreamingAnalysis() {
           );
         })}
 
-        {status === "error" && <div className={styles.error}>Something went wrong. Try again.</div>}
+        {status === "error" && (
+          <div className={styles.error}>
+            <span>{errorMessage ?? "Something went wrong."}</span>
+            <button
+              type="button"
+              className={styles.retryBtn}
+              disabled={retrying}
+              onClick={async () => {
+                if (retrying) return; // swallow double-clicks
+                setRetrying(true);
+                try {
+                  retry(); // re-sends only the failed turn, not the whole conversation
+                } finally {
+                  // status flips away from 'error' once the retry lands (success
+                  // or a new failure); this just guards the button itself
+                  setTimeout(() => setRetrying(false), 400);
+                }
+              }}
+            >
+              {retrying ? "Retrying…" : "Retry"}
+            </button>
+          </div>
+        )}
       </div>
 
       {showJump && (
