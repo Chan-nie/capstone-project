@@ -16,6 +16,11 @@ const projects = [
     name: "SafeCart",
     blurb: "A food-safety scanner that personalizes product analysis to your health conditions and allergies using the Anthropic Vision API. Still in progress.",
   },
+  {
+    slug: "portfolio-site",
+    name: "Portfolio Website",
+    blurb: "My personal portfolio site, built by giving AI my own template and structure to implement, rather than hand-coding it myself.",
+  },
 ];
 
 export default function ProjectsPage() {
