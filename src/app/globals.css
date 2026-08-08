@@ -1,24 +1,46 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme {
-  --color-brand: #4f46e5;
-  --color-brand-dark: #3730a3;
+  /* Identity Kit colors */
+  --color-ink: #171821;
+  --color-paper: #f3edec;
+  --color-paper-raised: #faf6f5;
+  --color-rose: #e8b4b8;
+  --color-rose-deep: #b5676d;
+  --color-serenity: #8fa3c7;
+  --color-serenity-deep: #4a5f82;
+
+  /* Identity Kit type */
+  --font-display: var(--font-fraunces), Georgia, serif;
+  --font-body: var(--font-inter), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), "SFMono-Regular", monospace;
+
+  /* Soft depth so the light surface doesn't read flat */
+  --shadow-soft: 0 1px 2px rgba(23, 24, 33, 0.05), 0 12px 32px -8px rgba(23, 24, 33, 0.12);
+  --shadow-card: 0 1px 2px rgba(23, 24, 33, 0.04), 0 4px 12px -2px rgba(23, 24, 33, 0.08);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  --background: var(--color-paper);
+  --foreground: var(--color-ink);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background:
+    radial-gradient(1200px 600px at 100% -10%, color-mix(in oklab, var(--color-serenity) 12%, transparent), transparent),
+    radial-gradient(900px 500px at -10% 110%, color-mix(in oklab, var(--color-rose) 14%, transparent), transparent),
+    var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}
+
+::selection {
+  background: var(--color-rose);
+  color: var(--color-ink);
+}
+
+/* Focus ring in Serenity instead of the browser default blue */
+:focus-visible {
+  outline: 2px solid var(--color-serenity-deep);
+  outline-offset: 2px;
 }
