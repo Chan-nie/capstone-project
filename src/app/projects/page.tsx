@@ -25,14 +25,25 @@ const projects = [
 
 export default function ProjectsPage() {
   return (
-    <main className="mx-auto max-w-3xl px-4 py-16">
-      <h1 className="text-3xl font-bold">Projects</h1>
-      <p className="mt-2 text-neutral-600">Three cases — what the problem was, what I actually did, and what shipped.</p>
-      <div className="mt-8 space-y-6">
+    <main className="mx-auto max-w-3xl px-4 py-24">
+      <p className="font-mono text-xs uppercase tracking-widest text-serenity-deep">
+        Projects
+      </p>
+      <h1 className="mt-3 font-display text-4xl font-medium leading-tight text-ink sm:text-5xl">
+        Projects
+      </h1>
+      <p className="mt-4 text-ink/70">
+        Three cases — what the problem was, what I actually did, and what shipped.
+      </p>
+      <div className="mt-8 space-y-4">
         {projects.map((p) => (
-          <Link key={p.slug} href={`/projects/${p.slug}`} className="block rounded border p-5 hover:bg-neutral-50">
-            <h2 className="text-xl font-semibold">{p.name}</h2>
-            <p className="mt-2 text-sm text-neutral-600">{p.blurb}</p>
+          <Link
+            key={p.slug}
+            href={`/projects/${p.slug}`}
+            className="block rounded-2xl border border-ink/10 bg-paper-raised p-5 shadow-card transition-shadow hover:shadow-soft"
+          >
+            <h2 className="font-display text-xl font-medium text-ink">{p.name}</h2>
+            <p className="mt-2 text-sm text-ink/70">{p.blurb}</p>
           </Link>
         ))}
       </div>
