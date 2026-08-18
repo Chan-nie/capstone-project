@@ -1,6 +1,12 @@
 import "./globals.css";
 import Link from "next/link";
-import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
+import { Fraunces, Inter, JetBrains_Mono, Parisienne } from "next/font/google";
+
+const parisienne = Parisienne({
+  subsets: ["latin"],
+  variable: "--font-parisienne",
+  weight: "400",
+});
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -27,13 +33,13 @@ const links = [
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${fraunces.variable} ${inter.variable} ${jetbrainsMono.variable}`}>
+    <html lang="en" className={`${fraunces.variable} ${inter.variable} ${jetbrainsMono.variable} ${parisienne.variable}`}>
       <body className="min-h-dvh font-body text-ink">
         <header className="sticky top-0 z-10 border-b border-ink/10 bg-paper/80 backdrop-blur-md">
           <nav className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
-            <span className="font-display text-lg font-semibold tracking-tight">
-              Sinchan Suvarna
-            </span>
+            <Link href="/" className="flex items-center">
+  <img src="public/images/S-favicon.jpg" alt="Sinchan Suvarna" className="h-8 w-8" />
+</Link>
             <ul className="flex items-center gap-6 font-mono text-xs uppercase tracking-wide text-ink/70">
               {links.map((l) => (
                 <li key={l.href}>
