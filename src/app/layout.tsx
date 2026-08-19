@@ -1,5 +1,6 @@
 import "./globals.css";
 import Link from "next/link";
+import Image from "next/image";
 import { Fraunces, Inter, JetBrains_Mono, Parisienne } from "next/font/google";
 
 const parisienne = Parisienne({
@@ -38,8 +39,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <header className="sticky top-0 z-10 border-b border-ink/10 bg-paper/80 backdrop-blur-md">
           <nav className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
             <Link href="/" className="flex items-center">
-  <img src="public/images/S-favicon.jpg" alt="Sinchan Suvarna" className="h-8 w-8" />
-</Link>
+              <Image
+                src="/images/S-favicon.jpg"
+                alt="Sinchan Suvarna"
+                width={32}
+                height={32}
+              />
+            </Link>
+
             <ul className="flex items-center gap-6 font-mono text-xs uppercase tracking-wide text-ink/70">
               {links.map((l) => (
                 <li key={l.href}>

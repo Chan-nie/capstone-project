@@ -9,7 +9,7 @@ export default function HomePage() {
           aria-hidden="true"
           className="pointer-events-none absolute left-1/2 top-1/2 w-screen -translate-x-1/2 -translate-y-1/2 select-none overflow-hidden whitespace-nowrap text-center font-cursive text-[20vw] leading-none text-rose-deep/10 sm:text-[9rem]"
         >
-          Sinchan Suvarna
+          Sinchan0 Suvarna
         </div>
         <Image
           src="/images/headshot.jpg"
