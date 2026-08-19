@@ -4,22 +4,24 @@ import Link from "next/link";
 export default function HomePage() {
   return (
     <main className="mx-auto max-w-3xl px-4 py-24 text-center">
-      <div className="relative flex justify-center py-8">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute left-1/2 top-1/2 w-screen -translate-x-1/2 -translate-y-1/2 select-none overflow-hidden whitespace-nowrap text-center font-cursive text-[20vw] leading-none text-rose-deep/10 sm:text-[9rem]"
-        >
-          Sinchan0 Suvarna
-        </div>
-        <Image
-          src="/images/headshot.jpg"
-          alt="Sinchan Suvarna"
-          width={180}
-          height={180}
-          className="relative z-10 rounded-full object-cover shadow-soft"
-          priority
-        />
-      </div>
+<div className="relative mx-auto flex items-center justify-center py-10">
+  <div
+    aria-hidden="true"
+    className="pointer-events-none absolute left-1/2 top-1/2 flex w-screen -translate-x-1/2 -translate-y-1/2 select-none items-center justify-center gap-[18vw] overflow-hidden whitespace-nowrap font-cursive leading-none text-rose-deep/10 sm:gap-36"
+    style={{ fontSize: "clamp(2.75rem, 16vw, 8rem)" }}
+  >
+    <span>Sinchan</span>
+    <span>Suvarna</span>
+  </div>
+  <Image
+    src="/images/headshot.jpg"
+    alt="Sinchan Suvarna"
+    width={180}
+    height={180}
+    className="relative z-10 rounded-full object-cover shadow-soft"
+    priority
+  />
+</div> 
 
       <p className="mt-8 font-mono text-xs uppercase tracking-widest text-serenity-deep">
         B.Tech CSE · 3rd year · Frontend AI Intern at FlyRank AI
