@@ -4,24 +4,24 @@ import Link from "next/link";
 export default function HomePage() {
   return (
     <main className="mx-auto max-w-3xl px-4 py-24 text-center">
-<div className="relative mx-auto flex items-center justify-center py-10">
-  <div
-    aria-hidden="true"
-    className="pointer-events-none absolute left-1/2 top-1/2 flex w-screen -translate-x-1/2 -translate-y-1/2 select-none items-center justify-center gap-[18vw] overflow-hidden whitespace-nowrap font-cursive leading-none text-rose-deep/10 sm:gap-36"
-    style={{ fontSize: "clamp(2.75rem, 16vw, 8rem)" }}
-  >
-    <span>Sinchan</span>
-    <span>Suvarna</span>
-  </div>
-  <Image
-    src="/images/headshot.jpg"
-    alt="Sinchan Suvarna"
-    width={180}
-    height={180}
-    className="relative z-10 rounded-full object-cover shadow-soft"
-    priority
-  />
-</div> 
+      <div className="relative mx-auto flex flex-col items-center justify-center gap-4 py-10 sm:block sm:h-[180px]">
+        <Image
+          src="/images/headshot.jpg"
+          alt="Sinchan Suvarna"
+          width={180}
+          height={180}
+          className="relative mx-auto rounded-full object-cover shadow-soft sm:absolute sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2"
+          priority
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none static order-2 flex select-none flex-col items-center justify-center gap-0 whitespace-nowrap font-cursive leading-none text-rose-deep/10 sm:absolute sm:left-1/2 sm:top-1/2 sm:w-screen sm:-translate-x-1/2 sm:-translate-y-1/2 sm:flex-row sm:justify-center sm:gap-8 md:gap-20 lg:gap-36"
+          style={{ fontSize: "clamp(2rem, 10vw, 8rem)" }}
+        >
+          <span>Sinchan</span>
+          <span>Suvarna</span>
+        </div>
+      </div>
 
       <p className="mt-8 font-mono text-xs uppercase tracking-widest text-serenity-deep">
         B.Tech CSE · 3rd year · Frontend AI Intern at FlyRank AI

@@ -26,6 +26,11 @@
   --foreground: var(--color-ink);
 }
 
+html,
+body {
+  overflow-x: clip;
+}
+
 body {
   background:
     radial-gradient(1200px 600px at 100% -10%, color-mix(in oklab, var(--color-serenity) 12%, transparent), transparent),

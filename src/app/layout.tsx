@@ -36,7 +36,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${fraunces.variable} ${inter.variable} ${jetbrainsMono.variable} ${parisienne.variable}`}>
       <body className="min-h-dvh font-body text-ink">
-        <header className="sticky top-0 z-10 border-b border-ink/10 bg-paper/80 backdrop-blur-md">
+        <header className="sticky top-0 z-50 border-b border-ink/10 bg-paper/80 backdrop-blur-md">
           <nav className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
             <Link href="/" className="flex items-center">
               <Image
