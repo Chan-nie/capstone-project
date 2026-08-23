@@ -164,7 +164,7 @@ export default function HorizontalStory() {
     return () => ctx.revert();
   }, []);
 
-  return (
+    return (
     <section ref={sectionRef} className="relative overflow-hidden bg-ink">
       <div ref={trackRef} className="flex h-full w-max">
         {panels.map((panel, i) => (
@@ -173,9 +173,9 @@ export default function HorizontalStory() {
             ref={(el) => {
               if (el) panelRefs.current[i] = el;
             }}
-            className="grid h-full w-screen flex-shrink-0 grid-cols-1 items-center gap-10 px-8 md:grid-cols-2 md:gap-[6vw] md:px-[8vw]"
+            className="flex h-full w-screen flex-shrink-0 flex-col items-center justify-center gap-3 overflow-hidden px-5 pb-16 pt-4 sm:gap-4 sm:px-8 sm:pb-14 md:grid md:grid-cols-2 md:items-center md:gap-[6vw] md:px-[8vw] md:pb-0 md:pt-0"
           >
-            <div className="relative flex h-[55vh] items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-rose-quartz/15 to-serenity/15 shadow-2xl md:h-[65vh]">
+            <div className="relative flex h-[28vh] w-full items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-rose-quartz/15 to-serenity/15 shadow-xl sm:h-[38vh] md:h-[65vh] md:shadow-2xl">
               <Image
                 src={panel.image}
                 alt={panel.alt}
@@ -186,12 +186,12 @@ export default function HorizontalStory() {
               />
             </div>
 
-            <div className="panel-copy">
+            <div className="panel-copy w-full max-w-[40ch] text-center md:max-w-none md:text-left">
               <TextEffect
                 per="char"
                 preset="fade"
                 trigger={activeIndex === i}
-                className="mb-3 block font-mono text-xs uppercase tracking-[0.15em] text-rose-quartz"
+                className="mb-1.5 block font-mono text-[10px] uppercase tracking-[0.15em] text-rose-quartz sm:mb-2 sm:text-xs md:mb-3"
               >
                 {panel.chapter}
               </TextEffect>
@@ -201,7 +201,7 @@ export default function HorizontalStory() {
                 preset="slide"
                 delay={0.15}
                 trigger={activeIndex === i}
-                className="mb-4 font-fraunces text-3xl font-semibold leading-tight text-paper md:text-4xl"
+                className="mb-2 font-fraunces text-xl font-semibold leading-tight text-paper sm:text-2xl md:mb-4 md:text-4xl"
               >
                 {panel.title}
               </TextEffect>
@@ -211,7 +211,7 @@ export default function HorizontalStory() {
                 preset="blur"
                 delay={0.3}
                 trigger={activeIndex === i}
-                className="max-w-[42ch] text-base leading-relaxed text-paper/70"
+                className="mx-auto max-w-[36ch] text-sm leading-relaxed text-paper/70 sm:text-base md:mx-0 md:max-w-[42ch]"
               >
                 {panel.text}
               </TextEffect>
@@ -220,14 +220,14 @@ export default function HorizontalStory() {
         ))}
       </div>
 
-      <div className="fixed bottom-8 left-1/2 z-20 flex -translate-x-1/2 gap-2">
+      <div className="fixed bottom-4 left-1/2 z-20 flex -translate-x-1/2 gap-1.5 sm:bottom-6 sm:gap-2 md:bottom-8">
         {panels.map((panel, i) => (
           <span
             key={panel.chapter}
             ref={(el) => {
               if (el) dotRefs.current[i] = el;
             }}
-            className="relative h-[3px] w-7 overflow-hidden rounded-full bg-paper/20"
+            className="relative h-[3px] w-5 overflow-hidden rounded-full bg-paper/20 sm:w-6 md:w-7"
           >
             <span className="absolute inset-0 origin-left scale-x-0 bg-rose-quartz" />
           </span>
