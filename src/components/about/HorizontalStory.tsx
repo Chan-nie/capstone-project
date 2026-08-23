@@ -73,30 +73,31 @@ export default function HorizontalStory() {
       const section = sectionRef.current;
       if (!track || !section) return;
 
-      // measure the sticky navbar so the section can start exactly where it
-      // naturally sits (just below the nav) instead of requiring a "dead" scroll first
-      const header = document.querySelector("header");
-      const headerHeight = header ? header.getBoundingClientRect().height : 0;
+      // measured as a function (not a one-time value) since mobile browsers
+      // resize their own chrome (address bar collapsing) mid-scroll, which
+      // shifts real viewport height without firing a resize event we'd catch otherwise
+      const getHeaderHeight = () => {
+        const header = document.querySelector("header");
+        return header ? header.getBoundingClientRect().height : 0;
+      };
 
-      // size the section to exactly fill the remaining viewport below the nav,
-      // instead of a flat 100vh that overflows past the bottom by headerHeight
-      section.style.height = `calc(100dvh - ${headerHeight}px)`;
+      const setSectionHeight = () => {
+        section.style.height = `calc(100dvh - ${getHeaderHeight()}px)`;
+      };
+      setSectionHeight();
 
       const getScrollDistance = () => track.scrollWidth - window.innerWidth;
 
-      // n panels only need (n - 1) "steps" to move through — panel 1 is already
-      // fully shown at progress 0, so the last panel is fully shown at progress 1,
-      // not at (n-1)/n. This denominator is what the old Math.floor(progress * n) got wrong.
       const steps = panels.length - 1;
 
-      gsap.to(track, {
+      const trigger = gsap.to(track, {
         x: () => -getScrollDistance(),
         ease: "none",
         scrollTrigger: {
           trigger: section,
           pin: true,
           scrub: 1,
-          start: () => `top ${headerHeight}`,
+          start: () => `top ${getHeaderHeight()}`,
           end: () => `+=${getScrollDistance()}`,
           invalidateOnRefresh: true,
           snap: {
@@ -122,15 +123,12 @@ export default function HorizontalStory() {
               });
             });
 
-            // only update state when the active chapter actually changes —
-            // onUpdate fires on every scrub frame, so this guard stops needless re-renders
             setActiveIndex((prev) => (prev === idx ? prev : idx));
           },
         },
-      });
+      }).scrollTrigger;
 
-      // lets two-finger trackpad horizontal swipes drive the story too, not just
-      // vertical scroll — only while this section is the pinned one
+      // trackpad: two-finger horizontal swipes drive the story
       const onWheel = (e: WheelEvent) => {
         if (!isActiveRef.current) return;
         if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
@@ -139,6 +137,48 @@ export default function HorizontalStory() {
         }
       };
       window.addEventListener("wheel", onWheel, { passive: false });
+
+      // touch: phones don't fire wheel events, so a horizontal swipe — the
+      // instinctive gesture for a horizontal story — did nothing before this.
+      // translate horizontal drag distance into the vertical scroll that
+      // actually drives the pin, same idea as the wheel handler above.
+      let touchStartY = 0;
+      let lastTouchX = 0;
+
+      const onTouchStart = (e: TouchEvent) => {
+        if (!isActiveRef.current) return;
+        touchStartY = e.touches[0].clientY;
+        lastTouchX = e.touches[0].clientX;
+      };
+
+      const onTouchMove = (e: TouchEvent) => {
+        if (!isActiveRef.current) return;
+        const touchX = e.touches[0].clientX;
+        const touchY = e.touches[0].clientY;
+        const deltaX = lastTouchX - touchX;
+        const deltaY = Math.abs(touchY - touchStartY);
+
+        // only hijack when the swipe is clearly more horizontal than
+        // vertical — an actual vertical scroll attempt still just scrolls
+        if (Math.abs(deltaX) > deltaY) {
+          e.preventDefault();
+          window.scrollBy({ top: deltaX });
+        }
+        lastTouchX = touchX;
+      };
+
+      section.addEventListener("touchstart", onTouchStart, { passive: true });
+      section.addEventListener("touchmove", onTouchMove, { passive: false });
+
+      // mobile address-bar show/hide changes real viewport height mid-scroll
+      // without a resize event on some browsers — orientationchange always
+      // fires though, and this keeps the pin spacer and section height in sync
+      const onViewportChange = () => {
+        setSectionHeight();
+        ScrollTrigger.refresh();
+      };
+      window.addEventListener("resize", onViewportChange);
+      window.addEventListener("orientationchange", onViewportChange);
 
       const imgs = Array.from(track.querySelectorAll("img"));
       let loaded = 0;
@@ -158,6 +198,11 @@ export default function HorizontalStory() {
 
       return () => {
         window.removeEventListener("wheel", onWheel);
+        section.removeEventListener("touchstart", onTouchStart);
+        section.removeEventListener("touchmove", onTouchMove);
+        window.removeEventListener("resize", onViewportChange);
+        window.removeEventListener("orientationchange", onViewportChange);
+        trigger?.kill();
       };
     }, sectionRef);
 
