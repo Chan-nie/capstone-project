@@ -1,9 +1,10 @@
 "use client";
 
-import { useLayoutEffect, useRef } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { TextEffect } from "@/components/text-effect";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -61,58 +62,83 @@ export default function HorizontalStory() {
   const panelRefs = useRef<HTMLDivElement[]>([]);
   const dotRefs = useRef<HTMLSpanElement[]>([]);
 
+  // tracks which chapter is currently "active" so TextEffect only plays for that one
+  const [activeIndex, setActiveIndex] = useState(0);
+  // true only while this section is the pinned/active one — scopes the wheel hijack
+  const isActiveRef = useRef(false);
+
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
       const track = trackRef.current;
-      if (!track) return;
+      const section = sectionRef.current;
+      if (!track || !section) return;
+
+      // measure the sticky navbar so the section can start exactly where it
+      // naturally sits (just below the nav) instead of requiring a "dead" scroll first
+      const header = document.querySelector("header");
+      const headerHeight = header ? header.getBoundingClientRect().height : 0;
+
+      // size the section to exactly fill the remaining viewport below the nav,
+      // instead of a flat 100vh that overflows past the bottom by headerHeight
+      section.style.height = `calc(100dvh - ${headerHeight}px)`;
 
       const getScrollDistance = () => track.scrollWidth - window.innerWidth;
 
-      const scrollTween = gsap.to(track, {
+      // n panels only need (n - 1) "steps" to move through — panel 1 is already
+      // fully shown at progress 0, so the last panel is fully shown at progress 1,
+      // not at (n-1)/n. This denominator is what the old Math.floor(progress * n) got wrong.
+      const steps = panels.length - 1;
+
+      gsap.to(track, {
         x: () => -getScrollDistance(),
         ease: "none",
         scrollTrigger: {
-          trigger: sectionRef.current,
+          trigger: section,
           pin: true,
           scrub: 1,
-          start: "top top",
+          start: () => `top ${headerHeight}`,
           end: () => `+=${getScrollDistance()}`,
           invalidateOnRefresh: true,
+          snap: {
+            snapTo: 1 / steps,
+            duration: { min: 0.2, max: 0.5 },
+            ease: "power1.inOut",
+          },
+          onEnter: () => (isActiveRef.current = true),
+          onEnterBack: () => (isActiveRef.current = true),
+          onLeave: () => (isActiveRef.current = false),
+          onLeaveBack: () => (isActiveRef.current = false),
           onUpdate: (self) => {
-            const idx = Math.min(
-              panels.length - 1,
-              Math.floor(self.progress * panels.length)
-            );
+            const idx = Math.round(self.progress * steps);
+
             dotRefs.current.forEach((dot, i) => {
               const fill = dot.firstElementChild as HTMLElement;
               const value =
-                i < idx ? 1 : i === idx ? self.progress * panels.length - idx : 0;
-              gsap.to(fill, { scaleX: value, duration: 0.1, overwrite: true });
+                i < idx ? 1 : i === idx ? self.progress * steps - idx + 1 : 0;
+              gsap.to(fill, {
+                scaleX: Math.min(1, Math.max(0, value)),
+                duration: 0.1,
+                overwrite: true,
+              });
             });
+
+            // only update state when the active chapter actually changes —
+            // onUpdate fires on every scrub frame, so this guard stops needless re-renders
+            setActiveIndex((prev) => (prev === idx ? prev : idx));
           },
         },
       });
 
-      panelRefs.current.forEach((panel) => {
-        const copy = panel.querySelector(".panel-copy");
-        if (!copy) return;
-        gsap.fromTo(
-          copy,
-          { opacity: 0, y: 24 },
-          {
-            opacity: 1,
-            y: 0,
-            ease: "power2.out",
-            scrollTrigger: {
-              trigger: panel,
-              containerAnimation: scrollTween,
-              start: "left 70%",
-              end: "left 30%",
-              scrub: true,
-            },
-          }
-        );
-      });
+      // lets two-finger trackpad horizontal swipes drive the story too, not just
+      // vertical scroll — only while this section is the pinned one
+      const onWheel = (e: WheelEvent) => {
+        if (!isActiveRef.current) return;
+        if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+          e.preventDefault();
+          window.scrollBy({ top: e.deltaX });
+        }
+      };
+      window.addEventListener("wheel", onWheel, { passive: false });
 
       const imgs = Array.from(track.querySelectorAll("img"));
       let loaded = 0;
@@ -129,16 +155,17 @@ export default function HorizontalStory() {
           );
       });
       if (loaded === imgs.length) ScrollTrigger.refresh();
+
+      return () => {
+        window.removeEventListener("wheel", onWheel);
+      };
     }, sectionRef);
 
     return () => ctx.revert();
   }, []);
 
   return (
-    <section
-      ref={sectionRef}
-      className="relative h-screen overflow-hidden bg-ink"
-    >
+    <section ref={sectionRef} className="relative overflow-hidden bg-ink">
       <div ref={trackRef} className="flex h-full w-max">
         {panels.map((panel, i) => (
           <div
@@ -146,7 +173,7 @@ export default function HorizontalStory() {
             ref={(el) => {
               if (el) panelRefs.current[i] = el;
             }}
-            className="grid h-screen w-screen flex-shrink-0 grid-cols-1 items-center gap-10 px-8 md:grid-cols-2 md:gap-[6vw] md:px-[8vw]"
+            className="grid h-full w-screen flex-shrink-0 grid-cols-1 items-center gap-10 px-8 md:grid-cols-2 md:gap-[6vw] md:px-[8vw]"
           >
             <div className="relative flex h-[55vh] items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-rose-quartz/15 to-serenity/15 shadow-2xl md:h-[65vh]">
               <Image
@@ -160,15 +187,34 @@ export default function HorizontalStory() {
             </div>
 
             <div className="panel-copy">
-              <span className="mb-3 block font-mono text-xs uppercase tracking-[0.15em] text-rose-quartz">
+              <TextEffect
+                per="char"
+                preset="fade"
+                trigger={activeIndex === i}
+                className="mb-3 block font-mono text-xs uppercase tracking-[0.15em] text-rose-quartz"
+              >
                 {panel.chapter}
-              </span>
-              <h2 className="mb-4 font-fraunces text-3xl font-semibold leading-tight text-paper md:text-4xl">
+              </TextEffect>
+
+              <TextEffect
+                per="word"
+                preset="slide"
+                delay={0.15}
+                trigger={activeIndex === i}
+                className="mb-4 font-fraunces text-3xl font-semibold leading-tight text-paper md:text-4xl"
+              >
                 {panel.title}
-              </h2>
-              <p className="max-w-[42ch] text-base leading-relaxed text-paper/70">
+              </TextEffect>
+
+              <TextEffect
+                per="line"
+                preset="blur"
+                delay={0.3}
+                trigger={activeIndex === i}
+                className="max-w-[42ch] text-base leading-relaxed text-paper/70"
+              >
                 {panel.text}
-              </p>
+              </TextEffect>
             </div>
           </div>
         ))}

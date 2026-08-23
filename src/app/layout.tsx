@@ -1,7 +1,10 @@
 import "./globals.css";
 import Link from "next/link";
 import Image from "next/image";
-import { Fraunces, Inter, JetBrains_Mono, Parisienne } from "next/font/google";
+import { Fraunces, Inter, JetBrains_Mono, Parisienne, Geist } from "next/font/google";
+import { cn } from "@/lib/utils";
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 const parisienne = Parisienne({
   subsets: ["latin"],
@@ -34,7 +37,7 @@ const links = [
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${fraunces.variable} ${inter.variable} ${jetbrainsMono.variable} ${parisienne.variable}`}>
+    <html lang="en" className={cn(fraunces.variable, inter.variable, jetbrainsMono.variable, parisienne.variable, "font-sans", geist.variable)}>
       <body className="min-h-dvh font-body text-ink">
         <header className="sticky top-0 z-50 border-b border-ink/10 bg-paper/80 backdrop-blur-md">
           <nav className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
