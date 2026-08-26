@@ -188,6 +188,10 @@ a, button, .card, .mark {
   html {
     @apply font-sans;
   }
+  .text-muted-foreground, p.subtitle, span.text-rose-300 {
+    /* Boost contrast ratio to meet WCAG AA standards */
+    opacity: 0.95;
+  }
 }
  
 /* Responsive Navbar & Theme Toggle Overflow Fix */

@@ -26,7 +26,10 @@ const jetbrainsMono = JetBrains_Mono({
   weight: ["400", "500"],
 });
 
-export const metadata = { title: "Sinchan Suvarna - Portfolio" };
+export const metadata = {
+  title: "Sinchan Suvarna | Portfolio",
+  description: "Second-year B.Tech CSE student and frontend developer building interactive web applications and 3D digital experiences.",
+};
 
 const links = [
   { href: "/", label: "Home" },
