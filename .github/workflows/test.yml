@@ -24,6 +24,7 @@ jobs:
     needs: unit
     env:
       GEMINI_API_KEY: dummy-key-for-ci-build
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
