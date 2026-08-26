@@ -23,7 +23,7 @@ export default function HomePage() {
 
           <div
             aria-hidden="true"
-            className="pointer-events-none static order-2 flex select-none flex-col items-center justify-center gap-0 whitespace-nowrap font-cursive leading-none text-rose-deep/10 sm:absolute sm:left-1/2 sm:top-1/2 sm:w-screen sm:-translate-x-1/2 sm:-translate-y-1/2 sm:flex-row sm:justify-center sm:gap-8 md:gap-20 lg:gap-36"
+            className="pointer-events-none static order-2 flex select-none flex-col items-center justify-center gap-0 whitespace-nowrap font-cursive leading-none text-rose-deep/50 dark:text-paper/30 sm:absolute sm:left-1/2 sm:top-1/2 sm:w-screen sm:-translate-x-1/2 sm:-translate-y-1/2 sm:flex-row sm:justify-center sm:gap-8 md:gap-20 lg:gap-36"
             style={{ fontSize: "clamp(2rem, 10vw, 8rem)" }}
           >
             <span>Sinchan</span>
@@ -38,13 +38,13 @@ export default function HomePage() {
         </FadeIn>
 
         <FadeIn delay={0.3}>
-          <h1 className="mt-3 font-display text-4xl font-medium leading-tight text-ink sm:text-5xl">
+          <h1 className="mt-3 font-display text-4xl font-medium leading-tight text-foreground sm:text-5xl">
             I can build and ship working web apps end-to-end.
           </h1>
         </FadeIn>
 
         <FadeIn delay={0.45}>
-          <p className="mx-auto mt-4 max-w-xl text-ink/70">
+          <p className="mx-auto mt-4 max-w-xl text-foreground/70">
             proof lives on the live portfolio site.
           </p>
         </FadeIn>

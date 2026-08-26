@@ -272,7 +272,7 @@ export default function HorizontalStory() {
             ref={(el) => {
               if (el) dotRefs.current[i] = el;
             }}
-            className="relative h-[3px] w-5 overflow-hidden rounded-full bg-paper/20 sm:w-6 md:w-7"
+            className="relative h-[3px] w-5 overflow-hidden rounded-full bg-background/20 sm:w-6 md:w-7"
           >
             <span className="absolute inset-0 origin-left scale-x-0 bg-rose-quartz" />
           </span>

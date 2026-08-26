@@ -28,8 +28,10 @@
 html,
 body {
   overflow-x: clip;
+  overscroll-behavior-y: none;
 }
 
+/* LIGHT MODE (Default) */
 body {
   background:
     radial-gradient(1200px 600px at 100% -10%, color-mix(in oklab, var(--color-serenity) 12%, transparent), transparent),
@@ -39,15 +41,27 @@ body {
   font-family: var(--font-body);
 }
 
+/* DARK MODE OVERRIDE */
+.dark body {
+  background:
+    radial-gradient(1200px 600px at 100% -10%, color-mix(in oklab, var(--color-serenity) 12%, transparent), transparent),
+    radial-gradient(900px 500px at -10% 110%, color-mix(in oklab, var(--color-rose) 14%, transparent), transparent),
+    var(--color-ink);
+  color: var(--color-paper);
+}
+
 ::selection {
   background: var(--color-rose);
   color: var(--color-ink);
 }
 
-/* Focus ring in Serenity instead of the browser default blue */
 :focus-visible {
   outline: 2px solid var(--color-serenity-deep);
   outline-offset: 2px;
+}
+
+a, button, .card, .mark {
+  transition: all 0.3s ease-in-out;
 }
 
 @theme inline {
@@ -93,9 +107,10 @@ body {
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* LIGHT MODE */
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+  --background: #f3edec;
+  --foreground: #171821;
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
@@ -128,9 +143,10 @@ body {
   --sidebar-ring: oklch(0.708 0 0);
 }
 
+/* DARK MODE */
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
+  --background: #171821;
+  --foreground: #f3edec;
   --card: oklch(0.205 0 0);
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.205 0 0);
@@ -173,3 +189,4 @@ body {
     @apply font-sans;
   }
 }
+ 

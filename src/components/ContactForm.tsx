@@ -55,15 +55,15 @@ export default function ContactForm() {
 
   if (status === "submitted") {
     return (
-      <p role="status" className="rounded-2xl bg-paper-raised p-6 font-display text-lg text-ink shadow-card">
+      <p role="status" className="rounded-2xl bg-background-raised p-6 font-display text-lg text-foreground shadow-card">
         Thanks — I&apos;ll get back to you soon.
       </p>
     );
   }
 
   const fieldClasses =
-    "mt-1.5 w-full rounded-xl border border-ink/15 bg-paper-raised px-4 py-2.5 text-ink placeholder:text-ink/40 outline-none transition-colors focus:border-serenity-deep aria-[invalid=true]:border-rose-deep";
-  const labelClasses = "font-mono text-xs uppercase tracking-wide text-ink/70";
+    "mt-1.5 w-full rounded-xl border border-ink/15 bg-background-raised px-4 py-2.5 text-foreground placeholder:text-foreground/40 outline-none transition-colors focus:border-serenity-deep aria-[invalid=true]:border-rose-deep";
+  const labelClasses = "font-mono text-xs uppercase tracking-wide text-foreground/70";
   const errorClasses = "mt-1 text-sm text-rose-deep";
 
   return (

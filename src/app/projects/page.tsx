@@ -54,7 +54,6 @@ const projects: Project[] = [
       "A working tool where messy data goes in and structured output comes out on command. It's real evidence of my Python and data-handling skills and of working as part of an equal three-way split on a team — although it's not frontend or web-app work, it sits in my portfolio as a different kind of evidence, not proof of the \"build and ship web apps\" claim.",
     primaryHref: "https://github.com/Chan-nie/space-mission-analysis",
     primaryLabel: "View on GitHub",
-    // no live deploy for this one — it's a CLI tool, not a web app
   },
   {
     slug: "connectify",
@@ -74,7 +73,6 @@ const projects: Project[] = [
       "This was a last-minute team project. My role was frontend but built through Lovable AI rather than hand coded. I built through prompting and iteration and prompted it to fix bugs. I didn't write or edit the underlying code directly.",
     outcome:
       "Connectify is a web app that helps users track how varied their connections are, instead of optimizing for sameness. It sits in my portfolio as secondary work, framed honestly as product-and-prompting work rather than hand-coded frontend, since that's what happened.",
-    // live first — Lovable-generated code, the demo is the honest artifact here
     primaryHref: "https://connectify-friends-fun.vercel.app/login",
     primaryLabel: "Open Connectify",
     secondaryHref: "https://github.com/Chan-nie/connectify-friends-fun",
@@ -162,10 +160,10 @@ export default function ProjectsPage() {
       <p className="font-mono text-xs uppercase tracking-widest text-serenity-deep">
         Projects
       </p>
-      <h1 className="mt-3 font-display text-4xl font-medium leading-tight text-ink sm:text-5xl">
+      <h1 className="mt-3 font-display text-4xl font-medium leading-tight text-foreground sm:text-5xl">
         Projects
       </h1>
-      <p className="mt-4 text-ink/70">
+      <p className="mt-4 text-foreground/70">
         Four cases — what the problem was, what I actually did, and what shipped.
       </p>
 
@@ -181,26 +179,26 @@ export default function ProjectsPage() {
             <MorphingDialog
               transition={{ type: "spring", bounce: 0.05, duration: 0.3 }}
             >
-              <MorphingDialogTrigger className="group relative block w-full overflow-hidden rounded-2xl border border-ink/10 bg-paper-raised p-5 text-left shadow-card transition-shadow hover:shadow-soft">
+              <MorphingDialogTrigger className="group relative block w-full overflow-hidden rounded-2xl border border-foreground/10 bg-background/40 p-5 text-left shadow-card backdrop-blur-md transition-all hover:bg-background/60 hover:shadow-soft">
                 <div
                   aria-hidden="true"
                   className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-rose-deep to-serenity-deep"
                 />
-                <MorphingDialogTitle className="font-display text-xl font-medium text-ink">
+                <MorphingDialogTitle className="font-display text-xl font-medium text-foreground">
                   {p.name}
                 </MorphingDialogTitle>
                 <p className="mt-1 font-mono text-xs uppercase tracking-wide text-serenity-deep">
                   {p.meta}
                 </p>
-                <MorphingDialogDescription className="mt-2 text-sm text-ink/70">
+                <MorphingDialogDescription className="mt-2 text-sm text-foreground/70">
                   {p.blurb}
                 </MorphingDialogDescription>
               </MorphingDialogTrigger>
 
               <MorphingDialogContainer>
-                <MorphingDialogContent className="relative max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-ink/10 bg-gradient-to-b from-paper-raised to-serenity-deep/5">
+                <MorphingDialogContent className="relative max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-foreground/10 bg-background/80 shadow-2xl backdrop-blur-xl">
                   <div className="p-6 sm:p-8">
-                    <MorphingDialogTitle className="font-display text-3xl font-medium text-ink">
+                    <MorphingDialogTitle className="font-display text-3xl font-medium text-foreground">
                       {p.name}
                     </MorphingDialogTitle>
                     <p className="mt-2 font-mono text-xs uppercase tracking-wide text-serenity-deep">
@@ -217,27 +215,27 @@ export default function ProjectsPage() {
                       />
                     </div>
 
-                    <h3 className="mt-8 flex items-center gap-2 text-lg font-semibold text-ink">
+                    <h3 className="mt-8 flex items-center gap-2 text-lg font-semibold text-foreground">
                       <span className="h-2 w-2 rounded-full bg-rose-deep" />
                       Problem
                     </h3>
-                    <p className="mt-2 whitespace-pre-line text-ink/70">
+                    <p className="mt-2 whitespace-pre-line text-foreground/70">
                       {p.problem}
                     </p>
 
-                    <h3 className="mt-8 flex items-center gap-2 text-lg font-semibold text-ink">
+                    <h3 className="mt-8 flex items-center gap-2 text-lg font-semibold text-foreground">
                       <span className="h-2 w-2 rounded-full bg-serenity-deep" />
                       What I did
                     </h3>
-                    <p className="mt-2 whitespace-pre-line text-ink/70">
+                    <p className="mt-2 whitespace-pre-line text-foreground/70">
                       {p.whatIDid}
                     </p>
 
-                    <h3 className="mt-8 flex items-center gap-2 text-lg font-semibold text-ink">
+                    <h3 className="mt-8 flex items-center gap-2 text-lg font-semibold text-foreground">
                       <span className="h-2 w-2 rounded-full bg-gradient-to-r from-rose-deep to-serenity-deep" />
                       Outcome
                     </h3>
-                    <p className="mt-2 whitespace-pre-line text-ink/70">
+                    <p className="mt-2 whitespace-pre-line text-foreground/70">
                       {p.outcome}
                     </p>
 
@@ -263,7 +261,7 @@ export default function ProjectsPage() {
                     </div>
                   </div>
 
-                  <MorphingDialogClose className="absolute right-4 top-4 rounded-full bg-ink/70 p-2 text-paper" />
+                  <MorphingDialogClose className="absolute right-4 top-4 rounded-full bg-foreground/70 p-2 text-background transition-colors hover:bg-foreground" />
                 </MorphingDialogContent>
               </MorphingDialogContainer>
             </MorphingDialog>
