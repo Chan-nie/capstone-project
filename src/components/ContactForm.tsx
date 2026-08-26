@@ -55,14 +55,25 @@ export default function ContactForm() {
 
   if (status === "submitted") {
     return (
-      <p role="status" className="rounded-2xl bg-background-raised p-6 font-display text-lg text-foreground shadow-card">
-        Thanks — I&apos;ll get back to you soon.
-      </p>
+      <div className="flex flex-col items-start gap-4 rounded-2xl bg-background-raised p-6 shadow-card">
+        <p role="status" className="font-display text-lg text-foreground">
+          Thanks — I&apos;ll get back to you soon.
+        </p>
+        <button
+          onClick={() => {
+            setStatus("idle");
+            setValues({ name: "", email: "", message: "" });
+          }}
+          className="font-mono text-xs uppercase tracking-wide text-serenity-deep transition-colors hover:text-rose-deep"
+        >
+          Send Another Message
+        </button>
+      </div>
     );
   }
 
   const fieldClasses =
-    "mt-1.5 w-full rounded-xl border border-ink/15 bg-background-raised px-4 py-2.5 text-foreground placeholder:text-foreground/40 outline-none transition-colors focus:border-serenity-deep aria-[invalid=true]:border-rose-deep";
+    "mt-1.5 w-full rounded-xl border border-foreground/15 bg-background-raised px-4 py-2.5 text-foreground placeholder:text-foreground/40 outline-none transition-colors focus:border-serenity-deep aria-[invalid=true]:border-rose-deep";
   const labelClasses = "font-mono text-xs uppercase tracking-wide text-foreground/70";
   const errorClasses = "mt-1 text-sm text-rose-deep";
 
@@ -74,6 +85,7 @@ export default function ContactForm() {
         </label>
         <input
           id="contact-name"
+          placeholder="Your name..."
           value={values.name}
           onChange={(e) => setValues((v) => ({ ...v, name: e.target.value }))}
           aria-invalid={!!errors.name}
@@ -94,6 +106,7 @@ export default function ContactForm() {
         <input
           id="contact-email"
           type="email"
+          placeholder="your.email@example.com"
           value={values.email}
           onChange={(e) => setValues((v) => ({ ...v, email: e.target.value }))}
           aria-invalid={!!errors.email}
@@ -113,6 +126,7 @@ export default function ContactForm() {
         </label>
         <textarea
           id="contact-message"
+          placeholder="What's on your mind?"
           value={values.message}
           onChange={(e) => setValues((v) => ({ ...v, message: e.target.value }))}
           aria-invalid={!!errors.message}

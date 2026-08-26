@@ -39,6 +39,7 @@
 
 .message {
   display: flex;
+  align-items: flex-end;
 }
 
 .messageUser {
@@ -49,8 +50,44 @@
   justify-content: flex-start;
 }
 
-.bubble {
+/* Avatar & Animations */
+.avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  margin-right: 12px;
+  border: 1px solid var(--color-rose);
+  background: var(--color-paper);
+}
+
+.avatarPulse {
+  animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; border-color: var(--color-rose); }
+  50% { opacity: 0.4; border-color: var(--color-serenity); }
+}
+
+/* Message Wrappers */
+.messageContent {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   max-width: 80%;
+}
+
+.messageUser .messageContent {
+  align-items: flex-end;
+}
+
+.messageAssistant .messageContent {
+  align-items: flex-start;
+}
+
+.bubble {
   padding: 10px 14px;
   border-radius: 14px;
   line-height: 1.45;
@@ -177,6 +214,11 @@
   padding: 12px;
   border-top: 1px solid color-mix(in oklab, var(--color-ink) 10%, transparent);
   align-items: flex-end;
+  /* Sticky properties */
+  position: sticky;
+  bottom: 0;
+  z-index: 50;
+  background: var(--background);
 }
 
 .input {
@@ -185,7 +227,7 @@
   border: 1px solid color-mix(in oklab, var(--color-ink) 15%, transparent);
   border-radius: 10px;
   padding: 10px 12px;
-  font-size: 1rem; /* 16px prevents iOS auto-zoom on focus */
+  font-size: 1rem;
   font-family: inherit;
   max-height: 120px;
   background: var(--color-paper);
@@ -217,7 +259,7 @@
 }
 
 @media (max-width: 480px) {
-  .bubble { max-width: 90%; }
+  .messageContent { max-width: 90%; }
   .btn { padding: 12px 16px; }
   .inputRow { padding: 10px; }
 }

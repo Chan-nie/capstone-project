@@ -41,7 +41,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={cn(fraunces.variable, inter.variable, jetbrainsMono.variable, parisienne.variable, "font-sans", geist.variable, "dark")}>
       <body className="min-h-dvh font-body transition-colors duration-300">
         <header className="sticky top-0 z-50 border-b border-foreground/10 bg-background/80 backdrop-blur-md transition-colors duration-300">
-          <nav className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
+          <nav className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-y-3 px-4 py-3 sm:py-4">
             <Link href="/" className="flex items-center">
               <Image
                 src="/images/S-favicon.jpg"
@@ -52,20 +52,22 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               />
             </Link>
 
-            <ul className="flex items-center gap-6 font-mono text-xs uppercase tracking-wide text-foreground/70">
-              {links.map((l) => (
-                <li key={l.href}>
-                  <Link
-                    href={l.href}
-                    className="transition-colors hover:text-rose-deep dark:hover:text-rose"
-                  >
-                    {l.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-            <div className="ml-6">
-              <ThemeToggle />
+            <div className="flex items-center gap-4 sm:gap-6">
+              <ul className="flex flex-wrap items-center gap-4 sm:gap-6 font-mono text-[11px] sm:text-xs uppercase tracking-wide text-foreground/70">
+                {links.map((l) => (
+                  <li key={l.href}>
+                    <Link
+                      href={l.href}
+                      className="transition-colors hover:text-rose-deep dark:hover:text-rose"
+                    >
+                      {l.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+              <div className="border-l border-foreground/10 pl-3 sm:pl-4">
+                <ThemeToggle />
+              </div>
             </div>
           </nav>
         </header>

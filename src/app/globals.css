@@ -190,3 +190,20 @@ a, button, .card, .mark {
   }
 }
  
+/* Responsive Navbar & Theme Toggle Overflow Fix */
+header nav, .nav-container, header {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+@media (max-width: 768px) {
+  header {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+  
+  /* Prevent theme toggle from clipping or forcing overflow */
+  .theme-toggle, button[aria-label*="theme"], button[aria-label*="Toggle"] {
+    transform: scale(0.9);
+  }
+}

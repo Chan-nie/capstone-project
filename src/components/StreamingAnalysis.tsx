@@ -7,6 +7,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { useStreamingAnalysis } from "@/hooks/useStreamingAnalysis";
 import styles from "./StreamingAnalysis.module.css";
 import ToolCallCard from "./ToolCallCard";
@@ -19,13 +20,9 @@ export default function StreamingAnalysis() {
   const [input, setInput] = useState("");
   const [retrying, setRetrying] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const isPinnedRef = useRef(true); // are we currently glued to the bottom?
+  const isPinnedRef = useRef(true); 
   const [showJump, setShowJump] = useState(false);
 
-  // --- Scroll-pin logic ---
-  // Pin to bottom only while the user is already at (or very near) the
-  // bottom. The moment they scroll up, release the pin so streaming text
-  // doesn't yank them back down mid-read.
   const handleScroll = () => {
     const el = scrollRef.current;
     if (!el) return;
@@ -65,7 +62,6 @@ export default function StreamingAnalysis() {
       <div className={styles.messages} ref={scrollRef} onScroll={handleScroll}>
         {messages.length === 0 && (
           <div className={styles.empty}>
-            <p>Paste some text or data below and I&apos;ll analyze it for you.</p>
             <button
               type="button"
               className={styles.exampleBtn}
@@ -81,22 +77,32 @@ export default function StreamingAnalysis() {
           const showThinking = isLastAssistant && status === "thinking" && m.content === "";
 
           return (
-<div
+            <div
               key={m.id}
               className={`${styles.message} ${
                 m.role === "user" ? styles.messageUser : styles.messageAssistant
               }`}
             >
-              {m.toolCall && <ToolCallCard toolCall={m.toolCall} />}
-              <div className={styles.bubble}>
-                {showThinking ? (
-                  <ThinkingIndicator />
-                ) : (
-                  <TypewriterText
-                    content={m.content}
-                    active={isLastAssistant && status === "streaming"}
-                  />
-                )}
+              {/* The New Avatar Rendering Block */}
+              {m.role === "assistant" && (
+                <div className={`${styles.avatar} ${showThinking ? styles.avatarPulse : ""}`}>
+                  <Image src="/images/S-favicon.jpg" alt="AI" width={28} height={28} />
+                </div>
+              )}
+
+              {/* Wrapped in messageContent so it aligns next to the avatar */}
+              <div className={styles.messageContent}>
+                {m.toolCall && <ToolCallCard toolCall={m.toolCall} />}
+                <div className={styles.bubble}>
+                  {showThinking ? (
+                    <ThinkingIndicator />
+                  ) : (
+                    <TypewriterText
+                      content={m.content}
+                      active={isLastAssistant && status === "streaming"}
+                    />
+                  )}
+                </div>
               </div>
             </div>
           );
@@ -110,13 +116,11 @@ export default function StreamingAnalysis() {
               className={styles.retryBtn}
               disabled={retrying}
               onClick={async () => {
-                if (retrying) return; // swallow double-clicks
+                if (retrying) return; 
                 setRetrying(true);
                 try {
-                  retry(); // re-sends only the failed turn, not the whole conversation
+                  retry(); 
                 } finally {
-                  // status flips away from 'error' once the retry lands (success
-                  // or a new failure); this just guards the button itself
                   setTimeout(() => setRetrying(false), 400);
                 }
               }}
@@ -165,37 +169,36 @@ export default function StreamingAnalysis() {
   );
 }
 
-/**
- * Reveals `content` character-by-character at a steady pace, independent
- * of how the underlying network chunks arrived. Gemini streams in bursts
- * (a sentence or two per chunk) rather than single tokens — without this,
- * text visually "pops" in blocks. This decouples display rate from
- * network rate: displayLength always chases content.length, never
- * outruns it, and snaps to the full text the instant streaming stops
- * (so the Stop button never leaves text visibly lagging behind).
- */
 function TypewriterText({ content, active }: { content: string; active: boolean }) {
   const [displayLength, setDisplayLength] = useState(0);
   const contentRef = useRef(content);
-  contentRef.current = content;
 
+  // 1. Pure ref sync (satisfies the refs linter)
+  useEffect(() => {
+    contentRef.current = content;
+  }, [content]);
+
+  // 2. Typewriter interval
   useEffect(() => {
     if (!active) return;
     const id = setInterval(() => {
       setDisplayLength((prev) => {
         const target = contentRef.current.length;
         if (prev >= target) return prev;
-        return Math.min(prev + 2, target); // ~2 chars per 16ms ≈ 125 chars/sec
+        return Math.min(prev + 2, target); 
       });
     }, 16);
     return () => clearInterval(id);
   }, [active]);
 
-  // The moment streaming ends (finished OR stopped), show everything that
-  // actually arrived immediately — no trailing lag on the partial message.
+  // 3. Snap to end when stopped
+  // We use the ref here, so we only need 'active' in the dependency array.
+  // This keeps the array size at 1, preventing the Turbopack crash!
   useEffect(() => {
-    if (!active) setDisplayLength(contentRef.current.length);
-  }, [active, content]);
+    if (!active) {
+      setDisplayLength(contentRef.current.length);
+    }
+  }, [active]);
 
   return (
     <p className={styles.text}>
@@ -205,10 +208,6 @@ function TypewriterText({ content, active }: { content: string; active: boolean 
   );
 }
 
-/**
- * Thinking indicator. The handoff to text is a CSS crossfade (see
- * StreamingAnalysis.module.css) rather than an abrupt swap.
- */
 function ThinkingIndicator() {
   return (
     <span className={styles.thinking} aria-label="Analyzing">
