@@ -1,17 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
-import ParticleField from "@/components/ParticleField";
 import FadeIn from "@/components/FadeIn";
-import dynamic from "next/dynamic";
+import DynamicParticleField from "@/components/DynamicParticleField";
 
-// Alias the dynamic import so it doesn't conflict with any local declaration
-const DynamicParticleField = dynamic(() => import("@/components/ParticleField"), {
-  ssr: false,
-});
 export default function HomePage() {
   return (
     <main className="relative mx-auto max-w-3xl px-4 py-24 text-center">
-      <ParticleField className="opacity-90" />
+      <DynamicParticleField className="opacity-90" />
 
       <div className="relative z-10">
         <div className="relative mx-auto flex flex-col items-center justify-center gap-4 py-10 sm:block sm:h-[180px]">
