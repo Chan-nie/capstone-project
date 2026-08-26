@@ -7,8 +7,8 @@ export const metadata = {
 
 export default function AIAnalysisPage() {
   return (
-    <main style={{ height: "calc(100dvh - 64px)", display: "flex", flexDirection: "column" }}>
-      <div style={{ padding: "24px 16px 0", textAlign: "center" }}>
+    <main style={{ height: "calc(100dvh - 64px)", display: "flex", flexDirection: "column", overflow: "hidden" }}>
+      <div style={{ padding: "16px 16px 0", textAlign: "center", flexShrink: 0 }}>
         <h1 style={{ fontSize: "1.5rem", fontWeight: 700, marginBottom: 4 }}>
           AI Core Assistant
         </h1>
